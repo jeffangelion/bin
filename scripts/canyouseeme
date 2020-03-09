@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+#| awk -F'(<[A-z0-9=/-:\"[:space:]]+>|&[A-z;]{5}|\\(|\\))' '{for(i=2;i<=NF;i++){print $i"\n"}}')
+mapfile -t result < <(curl -s -X POST -F "port=$1" https://canyouseeme.org \
+| grep padding-left:15px \
+| awk -F '(<[A-z0-9=/-:\"[:space:]]+>|&[A-z;]{5})' '{print $3"\n"$11"\n"$15}')
+#echo "${result[@]}"
+if [ ${result[0]} = "Success:"  ]; then
+	printf "\e[38;2;0;255;0m"
+	echo "${result[0]} ${result[1]}"
+else
+	printf "\e[38;2;255;0;0m"
+	echo "${result[0]} ${result[2]}"
+fi
+exit 0
