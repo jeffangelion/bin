@@ -4,9 +4,9 @@
 # Inspired by Andrea Lazzarotto
 # https://andrealazzarotto.com/2007/12/04/convertire-i-font-opentype-in-font-truetype/
 tmpScript=$(mktemp)
-#Generate temporary script for FontForge
+# Generate temporary script for FontForge
 echo -e "#!/usr/bin/fontforge\nPrint(\"Opening \"+\$1);\nOpen(\$1);\nPrint(\"Saving \"+\$1:r+\".ttf\");Generate(\$1:r+\".ttf\");\nQuit(0);" > "$tmpScript"
 for i in "$@"; do
-fontforge -script "$tmpScript" "$i"
+	fontforge -script "$tmpScript" "$i"
 done
-trap 'rm -f $tmpScript' EXIT HUP INT TERM
+exit 0
