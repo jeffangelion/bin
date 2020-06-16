@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Copyright © 2020 Ivan Vatlin <jenrus@riseup.net>
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# Based on this article: https://www.linux.com/training-tutorials/how-convert-video-file-iso-burn-dvd/
+temp_mpg=$(mktemp --suffix .mpg)
+temp_dvd=$(mktemp -d)
+temp_region="NTSC"
+# Help argument (just like serious programs!)
+[[ "$1" -eq "help" #ShellCheck doesn't like this LOC
+|| "$1" -eq "-h" 
+|| "$1" -eq "--help" 
+|| "$1" -eq "-help" 
+]] && printf 'Usage: %s [NTSC|PAL] filename\n' "$(basename "$0")" && exit 0
+for i in NTSC PAL; do
+    [[ "$1" -eq "$i" ]] && temp_region=$1 || exit 1
+done
+shift
+toffmpeg () {
+    printf '%s-dvd' "${1,,}"
+}
+toiso () {
+    echo "$(basename "$1" | sed 's/\(.*\)\..*/\1/').iso"
+}
+/usr/bin/env ffmpeg -i "$1" -target "$(toffmpeg "$temp_region")" -aspect 16:9 "$temp_mpg" -y
+VIDEO_FORMAT="$temp_region" /usr/bin/env dvdauthor -o "$temp_dvd" -t "$temp_mpg"
+VIDEO_FORMAT="$temp_region" /usr/bin/env dvdauthor -o "$temp_dvd" -T
+/usr/bin/env genisoimage -dvd-video -o "$(toiso "$1")" "$temp_dvd"
+/usr/bin/env rm -rf "$temp_mpg" "$temp_dvd"
+exit 0
