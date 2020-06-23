@@ -18,10 +18,10 @@ temp_mpg=$(mktemp --suffix .mpg)
 temp_dvd=$(mktemp -d)
 temp_region="NTSC"
 # Help argument (just like serious programs!)
-[[ "$1" -eq "help" #ShellCheck doesn't like this LOC
-|| "$1" -eq "-h" 
-|| "$1" -eq "--help" 
-|| "$1" -eq "-help" 
+[[ "$1" == "help" #ShellCheck doesn't like this LOC
+|| "$1" == "-h" 
+|| "$1" == "--help" 
+|| "$1" == "-help" 
 ]] && printf 'Usage: %s [NTSC|PAL] filename\n' "$(basename "$0")" && exit 0
 for i in NTSC PAL; do
     [[ "$1" -eq "$i" ]] && temp_region=$1 || exit 1
